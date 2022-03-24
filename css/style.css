@@ -1,0 +1,97 @@
+﻿html {
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+}
+
+input:required:invalid, input:focus:invalid { border-color: #d9534f; }
+
+::-webkit-scrollbar-thumb { display: none; }
+
+.panel, .panel-heading { border-radius: 0 !important; }
+
+.label-container {
+    background-color: #d0d0d0;
+    height: calc(100vh - 30px);
+    overflow: auto;
+}
+
+#label { 
+    position: relative;
+    margin: auto 10px;
+    box-shadow: 0 1px 6px rgb(0 0 0 / 34%), 0 1px 10px rgb(0 0 0 / 48%);
+}
+
+.thumbnail { margin: 20px auto; }
+
+.navbar-btn-toggle {
+    float: right;
+    margin-bottom: 8px;
+    margin-right: 15px;
+    margin-top: 8px;
+    position: relative;
+}
+
+.settingsModal .modal-content { 
+    top: 0px;
+    height: auto;
+    min-height: 100%;
+    border-radius: 0;
+}
+.settingsModal .modal-footer {
+    border-radius: 0;
+    bottom:0px;
+    position:absolute;
+    width:100%;
+  }
+.settingsModal .modal-dialog { margin: 0px;}
+
+#info { padding-left: 10px; }
+
+.panel-heading-blur {
+    background-color: #215480 !important;
+    border-color: #215480 !important;
+}
+
+.textLayer {
+    user-select: text;
+    opacity: 1 !important;
+}
+
+.thumbnail:not([data-loaded]){
+    border:none !important;
+    margin: 10px auto !important;
+    box-shadow: 0 1px 3px rgb(0 0 0 / 12%), 0 1px 2px rgb(0 0 0 / 24%);
+}
+.settingsModal .modal-footer{justify-content: space-between;}
+
+.toast {
+    position: fixed;
+    bottom: calc(50% - 10px);
+    width: 200px;
+    right: calc(50% - 100px);
+    margin: 0 auto;
+    z-index: 9999999;
+    text-align: center;
+    font-size: 1.3em;
+    font-weight: bold;
+}
+.labelSection{
+    position: relative;
+    border-bottom: 1px #dadada dashed;
+    background-color: #f9f9f9;
+}
+.labelSection .deleteLabel{
+    color: black;
+    position: absolute;
+    right: 10px;
+    padding:10px;
+}
+.labelSection span:hover{
+    cursor:pointer;
+    border-bottom: 2px solid red;
+}

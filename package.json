@@ -1,0 +1,30 @@
+{
+  "name": "zpl-printer",
+  "version": "1.0.0",
+  "description": "ZPL Printer",
+  "main": "index.js",
+  "productName": "ZPL Printer",
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder -wml",
+    "dist-mac": "electron-builder -m"
+  },
+  "build": {
+    "asar": false,
+    "appId": "com.froggr.zplprinter",
+    "win": {
+      "target": "portable",
+      "icon": "logo.png"
+    }
+  },
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "electron-json-config": "2.0.0-beta",
+    "jquery": "^3.6.0"
+  },
+  "devDependencies": {
+    "electron": "^11.2.0",
+    "electron-builder": "^22.9.1"
+  }
+}

@@ -1,0 +1,107 @@
+<html>
+
+<head>
+    <title>Zpl Printer</title>
+    <link href="bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="bootstrap/icons/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="css/style.css" />
+    <link rel="stylesheet" type="text/css" href="css/viewer.css" />
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <button class="btn btn-secondary" href="#" data-toggle="modal" data-backdrop="false"
+            data-target="#settings-window">Menu
+        </button>
+        <button id="btn-remove" class="btn btn-danger" type="button"> Clear </button>
+    </nav>
+    <div class="label-container text-center">
+        <div id="label">
+        </div>
+    </div>
+
+    <div class='notifications bottom-left'></div>
+
+    <!-- Modal -->
+    <div class="settingsModal modal" id="settings-window" tabindex="-1" aria-labelledby="myModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="myModalLabel">Settings</h4>
+                    <button type="button" class="close" data-dismiss="modal"><span
+                            aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                </div>
+                <form id="configsForm" class=" form-horizontal">
+                    <div class="modal-body">
+                        <div class="container">
+                            <h2>Printer Settings</h2>
+                            <div class="form-group">
+                                <label for="exampleFormControlSelect1">Print density</label>
+                                <select class="form-control" id="density" onChange="configChange('density',this)">
+                                    <option value="6">6 dpmm (152 dpi)</option>
+                                    <option value="8">8 dpmm (203 dpi)</option>
+                                    <option value="12">12 dpmm (300 dpi)</option>
+                                    <option value="24">24 dpmm (600 dpi)</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="exampleFormControlInput1">Label height</label>
+                                <div class="input-group">
+                                    <input type="text" class="form-control" onChange="configChange('height',this)"
+                                        id="height" aria-describedby="validatedInputGroupPrepend">
+                                    <div class="input-group-append">
+                                        <span class="input-group-text" id="validatedInputGroupPrepend">inches</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="exampleFormControlInput1">Label width</label>
+                                <div class="input-group">
+                                    <input type="text" class="form-control" onChange="configChange('width',this)"
+                                        id="width" aria-describedby="validatedInputGroupPrepend">
+                                    <div class="input-group-append">
+                                        <span class="input-group-text" id="validatedInputGroupPrepend">inches</span>
+                                    </div>
+                                </div>
+
+                            </div>
+                            <h2>Network</h2>
+                            <div class="form-group">
+                                <label for="exampleInputEmail1">Host</label>
+                                <input type="text" class="form-control" placeholder="192.168.0.1" onChange="configChange('host',this)"
+                                    id="host" aria-describedby="emailHelp">
+                            </div>
+                            <div class="form-group">
+                                <label for="exampleInputEmail1">Port</label>
+                                <input type="number" class="form-control" placeholder="192.168.0.1" onChange="configChange('port',this)"
+                                    id="port" aria-describedby="emailHelp">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button id="btn-close" type="button" class="btn btn-danger float-left"
+                            onclick="window.close()"><span>Quit App</span></button>
+                        <span>
+                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                            <button id="btn-save" type="submit" class="btn btn-primary">Save changes</button>
+                        </span>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="toast bg-primary text-white" role="alert" aria-live="assertive" data-autohide="true" data-delay="1000"
+        aria-atomic="true">
+        <div class="toast-body">
+        </div>
+    </div>
+    <script>window.jQuery = window.$ = require('jquery');</script>
+    <script src="bootstrap/js/bootstrap.min.js"></script>
+    <script src="bootstrap/js/bootstrap-notify.js"></script>
+    <script src="bootstrap/js/bootbox.min.js"></script>
+    <script src="js/pdf.js"></script>
+    <script src="print.js"></script>
+</body>
+
+</html>
