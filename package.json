@@ -5,7 +5,7 @@
   "main": "index.js",
   "productName": "ZPL Printer",
   "scripts": {
-    "start": "electron .",
+    "start": "electron --enable-transparent-visuals --disable-gpu .",
     "dist": "electron-builder -wml",
     "dist-mac": "electron-builder -m"
   },

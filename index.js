@@ -1,4 +1,4 @@
-const { app, BrowserWindow, Tray, ipcMain} = require('electron');
+const { app, BrowserWindow, screen, Tray, ipcMain} = require('electron');
 const net = require('net');
 const path = require('path');
 
@@ -7,11 +7,22 @@ const icon = path.join(__dirname,'/icons/icon-16-white.png');
 // Global variable that holds the app window 
 let win
 let tray;
+
+let display
+let width
+
 // required for regedit lib in electron
 
 app.on('ready', ()=>{
+  setTimeout(function() {
     createWindow();
-    createTray();
+  },100);
+    //createTray();
+
+
+    // get the mouse position
+    
+
 })
 
 const createTray = () => {
@@ -31,7 +42,7 @@ const createTray = () => {
 const getWindowPosition = () => {
   console.log(win);
     //const windowBounds = win.getBounds()
-    const trayBounds = tray.getBounds()
+    //const trayBounds = tray.getBounds()
 
     // Center window horizontally below the tray icon
     const x = Math.round(trayBounds.x + (trayBounds.width / 2) - (windowBounds.width / 2))
@@ -45,15 +56,18 @@ const getWindowPosition = () => {
 
 function createWindow() {
     console.log('here');
+    display = screen.getPrimaryDisplay();
+    width = display.bounds.width;
     // Creating the browser window 
     win = new BrowserWindow({
         width: 375,
-        height: 768,
-        show: true,
-        frame: true,
+        height: 770,
+        show: false,
+        frame: false,
         fullscreenable: false,
         resizable: false,
         transparent: true,
+        focusable: false,
         webPreferences: {
             nodeIntegration: true,
             backgroundThrottling: false
@@ -64,10 +78,13 @@ function createWindow() {
     //win.setIcon(icon);
 
     win.loadFile('go.html');
+    showWindow();
+    setTimeout(hideWindow,1000)
+    win.webContents.openDevTools({mode:'undocked'})
     
     win.on('blur', () => {
         if (!win.webContents.isDevToolsOpened()) {
-          //win.hide()
+          
         }
       })
 }
@@ -81,22 +98,39 @@ const toggleWindow = () => {
   }
   
 const showWindow = () => {
+
     // const position = getWindowPosition()
-    // win.setBounds({ x: 440, y: 225, width: 800, height: 600 })
-    // win.setPosition(position.x, position.y, false)
-    //win.show()
+    //win.setBounds({ x: 440, y: 225, width: 800, height: 600 })
+    win.setSize(375, 770, true)
+    win.setPosition(width-373, 30, true)
+    win.show()
+    win.focus()
+}
+
+const hideWindow = () => {
+    //win.setSize(40, 770, true)
+    win.setPosition(width-3, 30, true)
+    win.show()
     win.focus()
 }
 
 
-
-
-ipcMain.handle('get-my-key', async () => {
+ipcMain.handle('leave-window', async () => {
     return new Promise(resolve => {
-       resolve('test');
+      console.log('leave');
+      hideWindow();
+      resolve(true);
     });
 })
 
+
+ipcMain.handle('enter-window', async () => {
+    return new Promise(resolve => {
+      console.log('enter');
+      showWindow();
+      resolve(true);
+    });
+})
 
 
 
@@ -114,7 +148,7 @@ server.on('connection', function(sock) {
 
     sock.on('data', function(data) {
         win.webContents.send('receiveData' , data);
-        //showWindow()
+        showWindow()
     });
 
     // Add a 'close' event handler to this instance of socket

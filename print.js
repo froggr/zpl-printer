@@ -36,7 +36,13 @@ $(document).ready(function () {
 });
 
 
-//ipcRenderer.invoke('get-my-key').then(result => setKey(result));
+$( ".helper" ).on('mouseleave',function() {
+  ipcRenderer.invoke('leave-window').then(result => {});
+});
+
+$( "body" ).on('mouseenter',function() {
+  ipcRenderer.invoke('enter-window').then(result => {});
+});
 
 ipcRenderer.on('receiveData' , async function(event , data){
     data = data.replace(/\\n/g, '').replace(/^"(.*)"$/, '$1');
