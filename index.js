@@ -1,4 +1,4 @@
-const { app, BrowserWindow, screen, Tray, ipcMain} = require('electron');
+const { app, BrowserWindow, screen, Menu, Tray, ipcMain} = require('electron');
 const net = require('net');
 const path = require('path');
 
@@ -10,34 +10,50 @@ let tray;
 
 let display
 let width
+let openXpos
+let closedXpos
+let windowWidth
+let windowHeight
+let rightClickPosition
 
 // required for regedit lib in electron
+if(process.platform === "linux") {
+  app.commandLine.appendSwitch('enable-transparent-visuals');
+  app.disableHardwareAcceleration();
+}
 
 app.on('ready', ()=>{
   setTimeout(function() {
     createWindow();
-  },100);
+  },500);
     //createTray();
 
 
-    // get the mouse position
+// const menu = new Menu()
+// const menuItem = new MenuItem({
+//   label: 'Inspect Element',
+//   click: () => {
+//     remote.getCurrentWindow().inspectElement(rightClickPosition.x, rightClickPosition.y)
+//   }
+// })
+// menu.append(menuItem)
     
 
 })
 
-const createTray = () => {
-    tray = new Tray(icon)
-    tray.on('right-click', toggleWindow)
-    tray.on('double-click', toggleWindow)
-    tray.on('click', function (event) {
-      toggleWindow()
+// const createTray = () => {
+//     tray = new Tray(icon)
+//     tray.on('right-click', toggleWindow)
+//     tray.on('double-click', toggleWindow)
+//     tray.on('click', function (event) {
+//       toggleWindow()
   
-      // Show devtools when command clicked
-      if (win.isVisible() && process.defaultApp && event.metaKey) {
-        win.openDevTools({mode: 'detach'})
-      }
-    })
-  }
+//       // Show devtools when command clicked
+//       if (win.isVisible() && process.defaultApp && event.metaKey) {
+//         win.openDevTools({mode: 'detach'})
+//       }
+//     })
+//   }
 
 const getWindowPosition = () => {
   console.log(win);
@@ -58,10 +74,18 @@ function createWindow() {
     console.log('here');
     display = screen.getPrimaryDisplay();
     width = display.bounds.width;
+    height = display.bounds.height;
+    windowWidth = 375;
+    windowHeight = height - 40;
+    openXpos = width-373;
+    closedXpos = width-3;
+
+
+
     // Creating the browser window 
     win = new BrowserWindow({
-        width: 375,
-        height: 770,
+        width: windowWidth,
+        height: windowHeight,
         show: false,
         frame: false,
         fullscreenable: false,
@@ -80,13 +104,21 @@ function createWindow() {
     win.loadFile('go.html');
     showWindow();
     setTimeout(hideWindow,1000)
-    win.webContents.openDevTools({mode:'undocked'})
+    //win.webContents.openDevTools({mode:'undocked'})
     
     win.on('blur', () => {
         if (!win.webContents.isDevToolsOpened()) {
           
         }
       })
+
+    // win.on('click', (event) => {
+    //   // Show devtools when command clicked
+    //   console.log(event);
+    //   if (win.isVisible() && process.defaultApp && event.ctrlKey) {
+    //     win.openDevTools({mode: 'detach'})
+    //   }
+    // })
 }
 
 const toggleWindow = () => {
@@ -98,18 +130,25 @@ const toggleWindow = () => {
   }
   
 const showWindow = () => {
-
-    // const position = getWindowPosition()
-    //win.setBounds({ x: 440, y: 225, width: 800, height: 600 })
-    win.setSize(375, 770, true)
-    win.setPosition(width-373, 30, true)
+    win.setBounds({
+      width: windowWidth,
+      height: windowHeight,
+      x: openXpos,
+      y: 30
+    });
+   
     win.show()
     win.focus()
 }
 
 const hideWindow = () => {
-    //win.setSize(40, 770, true)
-    win.setPosition(width-3, 30, true)
+    win.setBounds({
+      width: windowWidth,
+      height: windowHeight,
+      x: closedXpos,
+      y: 30
+    });
+
     win.show()
     win.focus()
 }
