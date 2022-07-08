@@ -9,7 +9,8 @@ let win
 let tray;
 
 let display
-let width
+let width = 0;
+let height = 0;
 let openXpos
 let closedXpos
 let windowWidth
@@ -56,7 +57,6 @@ app.on('ready', ()=>{
 //   }
 
 const getWindowPosition = () => {
-  console.log(win);
     //const windowBounds = win.getBounds()
     //const trayBounds = tray.getBounds()
 
@@ -72,15 +72,30 @@ const getWindowPosition = () => {
 
 function createWindow() {
     console.log('here');
-    display = screen.getPrimaryDisplay();
-    width = display.bounds.width;
-    height = display.bounds.height;
+    const displays = screen.getAllDisplays()
+
+    for(let i=0;i < displays.length; i++){
+      let display = displays[i];
+
+      width += display.bounds.width;
+      console.log(width);
+      height = display.bounds.height;
+    }
+    // const externalDisplay = displays.find((display) => {
+    //   console.log(display.bounds);
+    //   return display.bounds.x !== 0 || display.bounds.y !== 0
+    // })
+
+    // if (externalDisplay) {
+    //  display = externalDisplay;
+    // }
+    // else display = screen.getPrimaryDisplay();
+    // width = display.bounds.width;
+    // height = display.bounds.height;
     windowWidth = 375;
     windowHeight = height - 40;
     openXpos = width-373;
     closedXpos = width-3;
-
-
 
     // Creating the browser window 
     win = new BrowserWindow({
@@ -99,6 +114,10 @@ function createWindow() {
         }
     });
 
+    //win.openDevTools({mode: 'detach'})
+    
+
+    
     //win.setIcon(icon);
 
     win.loadFile('go.html');
@@ -156,7 +175,7 @@ const hideWindow = () => {
 
 ipcMain.handle('leave-window', async () => {
     return new Promise(resolve => {
-      console.log('leave');
+      //console.log('leave');
       hideWindow();
       resolve(true);
     });
@@ -165,7 +184,7 @@ ipcMain.handle('leave-window', async () => {
 
 ipcMain.handle('enter-window', async () => {
     return new Promise(resolve => {
-      console.log('enter');
+      //console.log('enter');
       showWindow();
       resolve(true);
     });
