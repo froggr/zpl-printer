@@ -1,0 +1,77 @@
+<html>
+
+<head>
+    <title>Zpl Printer</title>
+    <link href="bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="bootstrap/icons/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="css/style.css" />
+    <link rel="stylesheet" type="text/css" href="css/viewer.css" />
+</head>
+
+<body>
+    
+        <div class="container">
+            <h2>Settings</h2>
+            <div class="form-group">
+                <label for="exampleFormControlSelect1">Dock and hide on right of screen? <small class="text-danger">App will restart!</small></label>
+                <select class="form-control" id="trayMode" onChange="configChange('trayMode',this.value)">
+                    <option value="true">True</option>
+                    <option value="false">False</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="exampleFormControlSelect1">Print density</label>
+                <select class="form-control" id="density" onChange="configChange('density',this.value)">
+                    <option value="6">6 dpmm (152 dpi)</option>
+                    <option value="8">8 dpmm (203 dpi)</option>
+                    <option value="12">12 dpmm (300 dpi)</option>
+                    <option value="24">24 dpmm (600 dpi)</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="exampleFormControlInput1">Label height</label>
+                <div class="input-group">
+                    <input type="text" class="form-control" onChange="configChange('height',this.value)"
+                        id="height" aria-describedby="validatedInputGroupPrepend">
+                    <div class="input-group-append">
+                        <span class="input-group-text" id="validatedInputGroupPrepend">inches</span>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="exampleFormControlInput1">Label width</label>
+                <div class="input-group">
+                    <input type="text" class="form-control" onChange="configChange('width',this.value)"
+                        id="width" aria-describedby="validatedInputGroupPrepend">
+                    <div class="input-group-append">
+                        <span class="input-group-text" id="validatedInputGroupPrepend">inches</span>
+                    </div>
+                </div>
+
+            </div>
+            <h2>Network</h2>
+            <div class="form-group">
+                <label for="exampleInputEmail1">Host <small class="text-danger">Requires will restart!</small></label>
+                <input type="text" class="form-control" placeholder="192.168.0.1" onChange="configChange('host',this.value)"
+                    id="host" aria-describedby="emailHelp">
+            </div>
+            <div class="form-group">
+                <label for="exampleInputEmail1">Port <small class="text-danger">App will restart!</small></label>
+                <input type="number" class="form-control" placeholder="9100" onChange="configChange('port',this.value)"
+                    id="port" aria-describedby="emailHelp">
+            </div>
+        </div>
+                        
+        <div class="modal-footer">
+            <button id="btn-close" type="button" class="btn btn-danger float-left"
+                onclick="quitApp()"><span>Quit App</span></button>
+        </div>
+                    
+        
+    </div>
+    <script>window.jQuery = window.$ = require('jquery');</script>
+    <script src="bootstrap/js/bootstrap.min.js"></script>
+    <script src="settings.js"></script>
+</body>
+
+</html>

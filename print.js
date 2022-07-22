@@ -13,11 +13,14 @@ let configs = {
     saveLabels: false,
     filetype: '1',
     path: null,
-    counter: 0
+    counter: 0,
+    trayMode: 'true'
 };
 
-function configChange(field,e){
-    configs[field] = e.target.value;
+function configChange(field,value){
+    console.log(field,value);
+    configs[field] = value;
+    ipcRenderer.invoke('save-config',[field,value]);
 }
 
 var pdfjsLib = window['pdfjs-dist/build/pdf'];
@@ -45,110 +48,113 @@ $( "body" ).on('mouseenter',function() {
 });
 
 ipcRenderer.on('receiveData' , async function(event , data){
-    data = data.replace(/\\n/g, '').replace(/^"(.*)"$/, '$1');
-    var factor = 1;
-    var width = parseFloat(configs.width) / factor;
-    var height = parseFloat(configs.height) / factor;
+    loadConfigs().then(function(){
+        data = data.replace(/\\n/g, '').replace(/^"(.*)"$/, '$1');
+        var factor = 1;
+        var width = parseFloat(configs.width) / factor;
+        var height = parseFloat(configs.height) / factor;
 
-    var xhr = new XMLHttpRequest();
-    xhr.open('POST', 'http://api.labelary.com/v1/printers/{0}dpmm/labels/{1}x{2}/'.format(configs.density, width, height), true);
-    xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-    xhr.setRequestHeader("Accept", "application/pdf");
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', 'http://api.labelary.com/v1/printers/{0}dpmm/labels/{1}x{2}/'.format(configs.density, width, height), true);
+        xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+        xhr.setRequestHeader("Accept", "application/pdf");
 
-    xhr.responseType = 'blob';
-    xhr.onload = function (e) {
-        if (this.status == 200) {
-            var blob = this.response;
-            if (configs['saveLabels']) {
-                if (configs['filetype'] == '1') {
-                    saveLabel(blob, 'pdf');
+        xhr.responseType = 'blob';
+        xhr.onload = function (e) {
+            if (this.status == 200) {
+                var blob = this.response;
+                if (configs['saveLabels']) {
+                    if (configs['filetype'] == '1') {
+                        saveLabel(blob, 'pdf');
+                    }
                 }
-            }
 
-            window.URL.revokeObjectURL(url);
+                window.URL.revokeObjectURL(url);
 
-            var url = window.URL.createObjectURL(blob);
-            /* start */
-            
-            //
-            // Asynchronous download PDF
-            //
-            var loadingTask = pdfjsLib.getDocument(url);
-            console.log('start');
-            loadingTask.promise.then(async function(pdf) {
-
-                var size = getSize(width, height);
-                var sectionId = makeid(6);
-                await addLabelElements(sectionId,pdf.numPages,size);
-
-                let textProcessor = [];
-
-                for(let i=1;i<=pdf.numPages;i++){
-                    console.log('page ' + i);
-                    await pdf.getPage(i).then(function(page) {
-                        var pageNum = i;
-                        /* element stuff */
+                var url = window.URL.createObjectURL(blob);
+                /* start */
                 
-                        /* PDF page Stuff */
-                        var scale = 1.5;
-                        var viewport = page.getViewport({ scale: scale});
-                    
-                        //
-                        // Prepare canvas using PDF page dimensions
-                        //
-                        var canvas = document.getElementById('id_'+ sectionId + '_' + pageNum);
-                        var context = canvas.getContext('2d');
-                        //canvas.height = viewport.height;
-                        //canvas.width = viewport.width;
-                    
-                        //
-                        // Render PDF page into canvas context
-                        //
-                        var renderContext = {
-                            canvasContext: context,
-                            viewport: viewport,
-                        };
-                        
-                        var renderTask = page.render(renderContext);
+                //
+                // Asynchronous download PDF
+                //
+                var loadingTask = pdfjsLib.getDocument(url);
+                console.log('start');
+                loadingTask.promise.then(async function(pdf) {
 
-                        renderTask.promise.then(function() {
-                            // Returns a promise, on resolving it will return text contents of the page
-                            return page.getTextContent();
-                        }).then(function(textContent){
-                            console.log('render ' +pageNum);
-                            var textLayer = document.getElementById("text_id_"+ sectionId + '_' + pageNum);
-                            var rendered = document.getElementById('id_'+ sectionId + '_' + pageNum);
-                            console.log(rendered.offsetLeft); 
-                            textLayer.style.left = rendered.offsetLeft + 'px';
-                            textLayer.style.top = rendered.offsetTop + 'px';
-                            textLayer.style.height = rendered.offsetHeight + 'px';
-                            textLayer.style.width = rendered.offsetWidth + 'px';
+                    var size = getSize(width, height);
+                    var sectionId = makeid(6);
+                    await addLabelElements(sectionId,pdf.numPages,size);
+
+                    let textProcessor = [];
+
+                    for(let i=1;i<=pdf.numPages;i++){
+                        console.log('page ' + i);
+                        await pdf.getPage(i).then(function(page) {
+                            var pageNum = i;
+                            /* element stuff */
+                    
+                            /* PDF page Stuff */
+                            var scale = 1.5;
+                            var viewport = page.getViewport({ scale: scale});
                         
-                            // Pass the data to the method for rendering of text over the pdf canvas.
-                            pdfjsLib.renderTextLayer({
-                                textContent: textContent,
-                                container: textLayer,
+                            //
+                            // Prepare canvas using PDF page dimensions
+                            //
+                            var canvas = document.getElementById('id_'+ sectionId + '_' + pageNum);
+                            var context = canvas.getContext('2d');
+                            //canvas.height = viewport.height;
+                            //canvas.width = viewport.width;
+                        
+                            //
+                            // Render PDF page into canvas context
+                            //
+                            var renderContext = {
+                                canvasContext: context,
                                 viewport: viewport,
-                                textDivs: []
-                            });
-                        })
-                    });
-                    
-                }
+                            };
+                            
+                            var renderTask = page.render(renderContext);
 
-                var offset = ((size.height/1.5) + 20) * pdf.numPages;
-                $('#sectionContainer-'+sectionId).css({'opacity':1});
-                $('#label').css({ "top": '-' + offset + 'px' });
-                $('#label').animate({ "top": "0px" },200*pdf.numPages,function(){
-                    $('#sectionContainer-'+sectionId+' .textLayer span').on('click',function(){ 
-                        selectText($(this)[0]);
-                        notify('Copied','scissors','success');
+                            renderTask.promise.then(function() {
+                                // Returns a promise, on resolving it will return text contents of the page
+                                return page.getTextContent();
+                            }).then(function(textContent){
+                                console.log('render ' +pageNum);
+                                var textLayer = document.getElementById("text_id_"+ sectionId + '_' + pageNum);
+                                var rendered = document.getElementById('id_'+ sectionId + '_' + pageNum);
+                                console.log(rendered.offsetLeft); 
+                                textLayer.style.left = rendered.offsetLeft + 'px';
+                                textLayer.style.top = rendered.offsetTop + 'px';
+                                textLayer.style.height = rendered.offsetHeight + 'px';
+                                textLayer.style.width = rendered.offsetWidth + 'px';
+                            
+                                // Pass the data to the method for rendering of text over the pdf canvas.
+                                pdfjsLib.renderTextLayer({
+                                    textContent: textContent,
+                                    container: textLayer,
+                                    viewport: viewport,
+                                    textDivs: []
+                                });
+                            })
+                        });
+                        
+                    }
+
+                    var offset = ((size.height/1.5) + 20) * pdf.numPages;
+                    $('#sectionContainer-'+sectionId).css({'opacity':1});
+                    $('#label').css({ "top": '-' + offset + 'px' });
+                    $('#label').animate({ "top": "0px" },200*pdf.numPages,function(){
+                        $('#sectionContainer-'+sectionId+' .textLayer span').on('click',function(){ 
+                            selectText($(this)[0]);
+                            notify('Copied','scissors','success');
+                        });
                     });
                 });
-            });
-        }
-    };
-    xhr.send(data);
+            }
+        };
+        xhr.send(data);
+    });
+    
 });
 
 
@@ -198,7 +204,7 @@ function pad(n, width, z) {
 }
 
 function initEvents() {
-
+    
     $('#btn-remove').click(function () {
         var size = $('.labelSection').length;
 
@@ -213,11 +219,26 @@ function initEvents() {
         }
     });
 
-    /*for(const item in configs){
-        $('#')
-    }*/
+    loadConfigs();
 
 
+}
+async function loadConfigs(){
+    return new Promise(resolve => {
+        ipcRenderer.invoke('load-configs').then(data => {
+            console.log(data);
+            for(const item in data){
+                configs[item] = data[item];
+            }
+            resolve(1);
+        });
+    });
+}
+
+function showSettings(){
+    ipcRenderer.invoke('show-settings').then(data => {
+        
+    });
 }
 
 // Toggle on/off switch

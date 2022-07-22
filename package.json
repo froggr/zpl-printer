@@ -5,7 +5,7 @@
   "main": "index.js",
   "productName": "ZPL Printer",
   "scripts": {
-    "start": "electron .",
+    "start": "electron . --no-sandbox",
     "dist": "electron-builder -wml",
     "dist-mac": "electron-builder -m",
     "dist-linux": "electron-builder -l"

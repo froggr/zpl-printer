@@ -11,8 +11,7 @@
 <body>
     <div class="helper">
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
-        <button class="btn btn-secondary" href="#" data-toggle="modal" data-backdrop="false"
-            data-target="#settings-window">Menu
+        <button class="btn btn-secondary" href="#" onclick="showSettings()">Menu
         </button>
         <button id="btn-remove" class="btn btn-danger" type="button"> Clear </button>
     </nav>
@@ -36,10 +35,17 @@
                 <form id="configsForm" class=" form-horizontal">
                     <div class="modal-body">
                         <div class="container">
-                            <h2>Printer Settings</h2>
+                            <h2>Settings</h2>
+                            <div class="form-group">
+                                <label for="exampleFormControlSelect1">Dock and hide on right of screen? (</label>
+                                <select class="form-control" id="trayMode" onChange="configChange('trayMode',this.value)">
+                                    <option value="true">True</option>
+                                    <option value="false">False</option>
+                                </select>
+                            </div>
                             <div class="form-group">
                                 <label for="exampleFormControlSelect1">Print density</label>
-                                <select class="form-control" id="density" onChange="configChange('density',this)">
+                                <select class="form-control" id="density" onChange="configChange('density',this.value)">
                                     <option value="6">6 dpmm (152 dpi)</option>
                                     <option value="8">8 dpmm (203 dpi)</option>
                                     <option value="12">12 dpmm (300 dpi)</option>
@@ -49,7 +55,7 @@
                             <div class="form-group">
                                 <label for="exampleFormControlInput1">Label height</label>
                                 <div class="input-group">
-                                    <input type="text" class="form-control" onChange="configChange('height',this)"
+                                    <input type="text" class="form-control" onChange="configChange('height',this.value)"
                                         id="height" aria-describedby="validatedInputGroupPrepend">
                                     <div class="input-group-append">
                                         <span class="input-group-text" id="validatedInputGroupPrepend">inches</span>
@@ -59,7 +65,7 @@
                             <div class="form-group">
                                 <label for="exampleFormControlInput1">Label width</label>
                                 <div class="input-group">
-                                    <input type="text" class="form-control" onChange="configChange('width',this)"
+                                    <input type="text" class="form-control" onChange="configChange('width',this.value)"
                                         id="width" aria-describedby="validatedInputGroupPrepend">
                                     <div class="input-group-append">
                                         <span class="input-group-text" id="validatedInputGroupPrepend">inches</span>
@@ -70,12 +76,12 @@
                             <h2>Network</h2>
                             <div class="form-group">
                                 <label for="exampleInputEmail1">Host</label>
-                                <input type="text" class="form-control" placeholder="192.168.0.1" onChange="configChange('host',this)"
+                                <input type="text" class="form-control" placeholder="192.168.0.1" onChange="configChange('host',this.value)"
                                     id="host" aria-describedby="emailHelp">
                             </div>
                             <div class="form-group">
                                 <label for="exampleInputEmail1">Port</label>
-                                <input type="number" class="form-control" placeholder="192.168.0.1" onChange="configChange('port',this)"
+                                <input type="number" class="form-control" placeholder="192.168.0.1" onChange="configChange('port',this.value)"
                                     id="port" aria-describedby="emailHelp">
                             </div>
                         </div>
@@ -84,8 +90,8 @@
                         <button id="btn-close" type="button" class="btn btn-danger float-left"
                             onclick="window.close()"><span>Quit App</span></button>
                         <span>
-                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                            <button id="btn-save" type="submit" class="btn btn-primary">Save changes</button>
+                            <a type="button" class="btn btn-default" href="#" data-dismiss="modal">Close</a>
+                            <a id="btn-save" onclick="saveConfig()" href="#" class="btn btn-primary">Save changes</a>
                         </span>
                     </div>
                 </form>

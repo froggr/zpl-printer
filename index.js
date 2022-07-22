@@ -1,21 +1,24 @@
+const { resolve } = require('dns');
 const { app, BrowserWindow, screen, Menu, Tray, ipcMain} = require('electron');
 const net = require('net');
 const path = require('path');
+const config = require('electron-json-config').factory();
 
 const icon = path.join(__dirname,'/icons/icon-16-white.png');
 
 // Global variable that holds the app window 
 let win
-let tray;
+let settingWin;
 
 let display
 let width = 0;
 let height = 0;
+let startingTop = 0;
 let openXpos
 let closedXpos
 let windowWidth
 let windowHeight
-let rightClickPosition
+let trayMode = config.get('trayMode') === "false" ? false : true;
 
 // required for regedit lib in electron
 if(process.platform === "linux") {
@@ -78,8 +81,8 @@ function createWindow() {
       let display = displays[i];
 
       width += display.bounds.width;
-      console.log(width);
       height = display.bounds.height;
+      startingTop = display.workArea.y;
     }
     // const externalDisplay = displays.find((display) => {
     //   console.log(display.bounds);
@@ -102,11 +105,13 @@ function createWindow() {
         width: windowWidth,
         height: windowHeight,
         show: false,
-        frame: false,
+        frame: trayMode ? false : true,
         fullscreenable: false,
-        resizable: false,
+        resizable: trayMode ? false : true,
         transparent: true,
-        focusable: false,
+        focusable: trayMode ? false : true,
+        alwaysOnTop: true,
+        autoHideMenuBar: true,
         webPreferences: {
             nodeIntegration: true,
             backgroundThrottling: false
@@ -122,7 +127,7 @@ function createWindow() {
 
     win.loadFile('go.html');
     showWindow();
-    setTimeout(hideWindow,1000)
+    if(trayMode) setTimeout(hideWindow,1000)
     //win.webContents.openDevTools({mode:'undocked'})
     
     win.on('blur', () => {
@@ -131,14 +136,10 @@ function createWindow() {
         }
       })
 
-    // win.on('click', (event) => {
-    //   // Show devtools when command clicked
-    //   console.log(event);
-    //   if (win.isVisible() && process.defaultApp && event.ctrlKey) {
-    //     win.openDevTools({mode: 'detach'})
-    //   }
-    // })
+    //win.openDevTools({mode: 'detach'})
 }
+
+
 
 const toggleWindow = () => {
     if(!win.webContents.isDevToolsOpened() && win.isVisible()) {
@@ -153,7 +154,7 @@ const showWindow = () => {
       width: windowWidth,
       height: windowHeight,
       x: openXpos,
-      y: 30
+      y: startingTop+30
     });
    
     win.show()
@@ -165,18 +166,25 @@ const hideWindow = () => {
       width: windowWidth,
       height: windowHeight,
       x: closedXpos,
-      y: 30
+      y: startingTop + 30
     });
 
     win.show()
     win.focus()
 }
 
+ipcMain.handle('load-configs', async () => {
+    return new Promise(resolve => {
+      //console.log('leave');
+      resolve(config.all());
+    });
+})
+
 
 ipcMain.handle('leave-window', async () => {
     return new Promise(resolve => {
-      //console.log('leave');
-      hideWindow();
+      console.log('leave');
+      if(trayMode)hideWindow();
       resolve(true);
     });
 })
@@ -185,16 +193,60 @@ ipcMain.handle('leave-window', async () => {
 ipcMain.handle('enter-window', async () => {
     return new Promise(resolve => {
       //console.log('enter');
-      showWindow();
+      if(trayMode)showWindow();
       resolve(true);
     });
+})
+
+ipcMain.handle('show-settings', async () => {
+    
+  
+    return new Promise(resolve => {
+      settingWin = new BrowserWindow({
+        show: false,
+        frame: true,
+        fullscreenable: false,
+        resizable: true,
+        transparent: false,
+        focusable: true,
+        alwaysOnTop: false,
+        autoHideMenuBar: true,
+        webPreferences: {
+            nodeIntegration: true,
+            backgroundThrottling: false
+            //preload: `${__dirname}/print.js`
+        }
+    });
+
+    settingWin.loadFile('settings.html');
+    settingWin.show();
+    settingWin.focus();
+      
+    resolve(true);
+  });
+})
+
+ipcMain.handle('save-config', async (event,data) => {
+  console.log(data);
+  return new Promise(resolve => {
+      config.set(data[0],data[1]);
+      if(data[0] == 'trayMode' || data[0] == 'host' || data[0] == 'port'){
+        app.relaunch();
+        app.exit(0);  
+      }
+      resolve(true); 
+    });
+})
+
+ipcMain.handle('quit-app', async () => {
+  app.exit(0)
 })
 
 
 
 const server = net.createServer();
-let PORT = 9100;
-let HOST = '127.0.0.1';
+let PORT = config.get('port') ? config.get('port') : 9100;
+let HOST = config.get('host') ? config.get('host') : '127.0.0.1';
 server.listen(PORT, HOST);
 
 let sockets = [];
@@ -206,7 +258,7 @@ server.on('connection', function(sock) {
 
     sock.on('data', function(data) {
         win.webContents.send('receiveData' , data);
-        showWindow()
+        if(trayMode) showWindow()
     });
 
     // Add a 'close' event handler to this instance of socket
