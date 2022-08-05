@@ -108,7 +108,7 @@ function createWindow() {
         frame: trayMode ? false : true,
         fullscreenable: false,
         resizable: trayMode ? false : true,
-        transparent: true,
+        transparent: trayMode ? true : false,
         focusable: trayMode ? false : true,
         alwaysOnTop: true,
         autoHideMenuBar: true,

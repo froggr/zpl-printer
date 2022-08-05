@@ -10,7 +10,7 @@ body {
     background:rgba(0, 0, 0, 0) !important;
 }
 
-.helper { margin-left:50px;}
+.helper { margin-left:2px;}
 
 input:required:invalid, input:focus:invalid { border-color: #d9534f; }
 
